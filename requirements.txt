@@ -1,5 +1,0 @@
-streamlit>=1.32
-nltk==3.8.1
-matplotlib>=3.7
-wordcloud>=1.9
-PyMuPDF==1.23.7
