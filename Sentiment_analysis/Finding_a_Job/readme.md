@@ -69,7 +69,7 @@ README.md
 
 **Jahdo Vanterpool**  
 Poughkeepsie, NY  
-[Email](jahdovpool@hotmail.com)  
+[Email](mailto:jahdovpool@hotmail.com)  
 [LinkedIn](https://www.linkedin.com/in/jahdo-vanterpool)  
 [GitHub](https://github.com/Jahdo-Codes)
 
