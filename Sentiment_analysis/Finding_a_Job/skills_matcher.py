@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from nltk.util import ngrams
 import fitz  # PyMuPDF for PDF extraction
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Download required NLTK resources (only needed once per environment)
 nltk.download('punkt')
@@ -23,9 +25,9 @@ nltk.download('averaged_perceptron_tagger')
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
-# ----------------------------------
+
 # Utility Functions
-# ----------------------------------
+
 
 def extract_text_from_pdf(uploaded_file):
     """
@@ -80,9 +82,17 @@ def generate_wordcloud(text, title):
     plt.axis("off")
     st.pyplot(plt)
 
-# ----------------------------------
+def compute_similarity(resume_text, job_text):
+    """
+    Uses TF-IDF vectorization and cosine similarity to compute semantic similarity score.
+    """
+    vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
+    tfidf_matrix = vectorizer.fit_transform([resume_text, job_text])
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+    return round(similarity[0][0] * 100, 2)
+
 # Streamlit UI Setup
-# ----------------------------------
+
 
 st.title("Resume-to-Job Keyword Matcher")
 
@@ -109,9 +119,9 @@ else:
     if resume_pdf:
         resume_input = extract_text_from_pdf(resume_pdf)
 
-# ----------------------------------
+
 # Main Analysis Logic
-# ----------------------------------
+
 
 if st.button("Analyze"):
     if job_input and resume_input:
@@ -129,15 +139,17 @@ if st.button("Analyze"):
         matched_keywords = job_keywords & resume_keywords
         missing_keywords = job_keywords - resume_keywords
 
-        # ---------------------------
-        # Resume Match Score
-        # ---------------------------
-        match_score = round((len(matched_keywords) / len(job_keywords)) * 100, 2) if job_keywords else 0
-        st.metric(label="✅ Resume Match Score", value=f"{match_score}%")
 
-        # ---------------------------
-        # Word Cloud Visualizations
-        # ---------------------------
+# Resume Match Score
+
+        match_score = round((len(matched_keywords) / len(job_keywords)) * 100, 2) if job_keywords else 0
+        similarity_score = compute_similarity(resume_clean, job_clean)
+
+        st.metric(label="Keyword Match Score", value=f"{match_score}%")
+        st.metric(label="Cosine Similarity Score", value=f"{similarity_score}%")
+
+# Word Cloud Visualizations
+
         st.subheader("Word Clouds")
         col1, col2 = st.columns(2)
 
@@ -149,9 +161,9 @@ if st.button("Analyze"):
             st.markdown("**Your Resume:**")
             generate_wordcloud(resume_clean, title="Your Resume")
 
-        # ---------------------------
-        # Matched and Missing Keywords
-        # ---------------------------
+
+# Matched and Missing Keywords
+
         st.subheader("Resume to Job Keyword Match")
 
         st.markdown(f"**Matched Keywords ({len(matched_keywords)}):**")
@@ -166,9 +178,9 @@ if st.button("Analyze"):
         else:
             st.success("You included all job-related keywords in your resume")
 
-        # ---------------------------
-        # Top Keyword Frequencies
-        # ---------------------------
+
+# Top Keyword Frequencies
+
         st.subheader("Top Keywords")
         job_top = get_top_keywords(job_tokens)
         resume_top = get_top_keywords(resume_tokens)
