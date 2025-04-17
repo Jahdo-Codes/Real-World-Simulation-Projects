@@ -39,6 +39,7 @@ This app uses natural language processing (NLP) techniques via NLTK:
 | WordCloud      | Keyword visualization          |
 | PyMuPDF (fitz) | Extract text from PDFs         |
 | Matplotlib     | Render word clouds             |
+| Scikit-learn     | TF-IDF vectorization, cosine similarity      |
 
 ---
 
